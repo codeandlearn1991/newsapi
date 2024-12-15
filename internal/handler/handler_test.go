@@ -11,6 +11,7 @@ import (
 	"github.com/codeandlearn1991/newsapi/internal/handler"
 	"github.com/codeandlearn1991/newsapi/internal/store"
 	"github.com/google/uuid"
+	"github.com/stretchr/testify/assert"
 )
 
 func Test_PostNews(t *testing.T) {
@@ -46,6 +47,7 @@ func Test_PostNews(t *testing.T) {
 			{ 
 			"id" : "3b082d9d-1dc7-4d1f-907e-50d449a03d45", 
 			"author": "code learn", 
+			"content": "news content",
 			"title": "first news", 
 			"summary": "first news post", 
 			"created_at": "2024-04-07T05:13:27+00:00", 
@@ -61,6 +63,8 @@ func Test_PostNews(t *testing.T) {
 			{ 
 			"id" : "3b082d9d-1dc7-4d1f-907e-50d449a03d45", 
 			"author": "code learn", 
+						"content": "news content",
+
 			"title": "first news", 
 			"summary": "first news post", 
 			"created_at": "2024-04-07T05:13:27+00:00", 
@@ -82,9 +86,7 @@ func Test_PostNews(t *testing.T) {
 			handler.PostNews(tc.store)(w, r)
 
 			// Assert
-			if w.Result().StatusCode != tc.expectedStatus {
-				t.Errorf("expected :%d, got: %d", tc.expectedStatus, w.Result().StatusCode)
-			}
+			assert.Equal(t, tc.expectedStatus, w.Result().StatusCode)
 		})
 	}
 }
@@ -117,9 +119,7 @@ func Test_GetAllNews(t *testing.T) {
 			handler.GetAllNews(tc.store)(w, r)
 
 			// Assert
-			if w.Result().StatusCode != tc.expectedStatus {
-				t.Errorf("expected :%d, got: %d", tc.expectedStatus, w.Result().StatusCode)
-			}
+			assert.Equal(t, tc.expectedStatus, w.Result().StatusCode)
 		})
 	}
 }
@@ -162,9 +162,7 @@ func Test_GetNewsByID(t *testing.T) {
 			handler.GetNewsByID(tc.store)(w, r)
 
 			// Assert
-			if w.Result().StatusCode != tc.expectedStatus {
-				t.Errorf("expected :%d, got: %d", tc.expectedStatus, w.Result().StatusCode)
-			}
+			assert.Equal(t, tc.expectedStatus, w.Result().StatusCode)
 		})
 	}
 }
@@ -202,6 +200,7 @@ func Test_UpdateNewsByID(t *testing.T) {
 			{ 
 			"id" : "3b082d9d-1dc7-4d1f-907e-50d449a03d45", 
 			"author": "code learn", 
+			"content": "news content",
 			"title": "first news", 
 			"summary": "first news post", 
 			"created_at": "2024-04-07T05:13:27+00:00", 
@@ -218,6 +217,7 @@ func Test_UpdateNewsByID(t *testing.T) {
 			"id" : "3b082d9d-1dc7-4d1f-907e-50d449a03d45", 
 			"author": "code learn", 
 			"title": "first news", 
+			"content": "news content",
 			"summary": "first news post", 
 			"created_at": "2024-04-07T05:13:27+00:00", 
 			"source": "https://example.com",
@@ -238,9 +238,7 @@ func Test_UpdateNewsByID(t *testing.T) {
 			handler.UpdateNewsByID(tc.store)(w, r)
 
 			// Assert
-			if w.Result().StatusCode != tc.expectedStatus {
-				t.Errorf("expected :%d, got: %d", tc.expectedStatus, w.Result().StatusCode)
-			}
+			assert.Equal(t, tc.expectedStatus, w.Result().StatusCode)
 		})
 	}
 }
@@ -283,9 +281,7 @@ func Test_DeleteNewsByID(t *testing.T) {
 			handler.DeleteNewsByID(tc.store)(w, r)
 
 			// Assert
-			if w.Result().StatusCode != tc.expectedStatus {
-				t.Errorf("expected :%d, got: %d", tc.expectedStatus, w.Result().StatusCode)
-			}
+			assert.Equal(t, tc.expectedStatus, w.Result().StatusCode)
 		})
 	}
 }

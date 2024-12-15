@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/codeandlearn1991/newsapi/internal/logger"
+	"github.com/stretchr/testify/assert"
 )
 
 func Test_CtxWithLogger(t *testing.T) {
@@ -38,9 +39,7 @@ func Test_CtxWithLogger(t *testing.T) {
 			ctx := logger.CtxWithLogger(tc.ctx, tc.logger)
 
 			_, ok := ctx.Value(logger.CtxKey{}).(*slog.Logger)
-			if tc.exists != ok {
-				t.Errorf("expected :%v got: %v", tc.exists, ok)
-			}
+			assert.Equal(t, tc.exists, ok)
 		})
 	}
 }
@@ -67,9 +66,7 @@ func Test_FromContext(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			logger := logger.FromContext(tc.ctx)
 
-			if tc.expected && logger == nil {
-				t.Errorf("expected: %v, got: %v", tc.expected, logger)
-			}
+			assert.Equal(t, tc.expected, logger != nil)
 		})
 	}
 }
