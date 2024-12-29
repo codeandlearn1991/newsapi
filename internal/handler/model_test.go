@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/codeandlearn1991/newsapi/internal/handler"
-	"github.com/codeandlearn1991/newsapi/internal/store"
+	"github.com/codeandlearn1991/newsapi/internal/news"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -14,7 +14,7 @@ import (
 func TestNewsPostReqBody_Validate(t *testing.T) {
 	type expectations struct {
 		err  string
-		news store.News
+		news *news.Record
 	}
 	testCases := []struct {
 		name         string
@@ -124,7 +124,7 @@ func TestNewsPostReqBody_Validate(t *testing.T) {
 				Tags:      []string{"test-tag"},
 			},
 			expectations: expectations{
-				news: store.News{
+				news: &news.Record{
 					Author:  "test-author",
 					Title:   "test-title",
 					Content: "test-content",
@@ -138,7 +138,7 @@ func TestNewsPostReqBody_Validate(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			// Act
-			news, err := tc.req.Validate()
+			n, err := tc.req.Validate()
 
 			// Assert
 			if tc.expectations.err != "" {
@@ -153,9 +153,9 @@ func TestNewsPostReqBody_Validate(t *testing.T) {
 
 				parsedSource, err := url.Parse(tc.req.Source)
 				require.NoError(t, err)
-				tc.expectations.news.Source = parsedSource
+				tc.expectations.news.Source = parsedSource.String()
 
-				assert.Equal(t, tc.expectations.news, news)
+				assert.Equal(t, tc.expectations.news, n)
 			}
 		})
 	}

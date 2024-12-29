@@ -7,14 +7,22 @@ import (
 	"time"
 
 	"github.com/codeandlearn1991/newsapi/internal/logger"
+	"github.com/codeandlearn1991/newsapi/internal/news"
+	"github.com/codeandlearn1991/newsapi/internal/postgres"
 	"github.com/codeandlearn1991/newsapi/internal/router"
-	"github.com/codeandlearn1991/newsapi/internal/store"
 )
 
 func main() {
 	log := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{AddSource: true}))
 
-	r := router.New(store.New())
+	db, err := postgres.NewDB(&postgres.Config{})
+	if err != nil {
+		log.Error("db error", "err", err)
+		os.Exit(1)
+	}
+	newsStore := news.NewStore(db)
+
+	r := router.New(newsStore)
 	wrappedRouter := logger.AddLoggerMid(log, logger.Middleware(r))
 
 	log.Info("server starting on port 8080")

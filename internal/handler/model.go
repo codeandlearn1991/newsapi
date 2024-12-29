@@ -6,7 +6,7 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/codeandlearn1991/newsapi/internal/store"
+	"github.com/codeandlearn1991/newsapi/internal/news"
 	"github.com/google/uuid"
 )
 
@@ -23,7 +23,7 @@ type NewsPostReqBody struct {
 }
 
 // Validate the incoming request.
-func (n *NewsPostReqBody) Validate() (news store.News, errs error) {
+func (n *NewsPostReqBody) Validate() (record *news.Record, errs error) {
 	if n.Author == "" {
 		errs = errors.Join(errs, fmt.Errorf("author is empty: %s", n.Author))
 	}
@@ -52,21 +52,21 @@ func (n *NewsPostReqBody) Validate() (news store.News, errs error) {
 	}
 
 	if errs != nil {
-		return news, errs
+		return record, errs
 	}
-	return store.News{
+	return &news.Record{
 		ID:        n.ID,
 		Author:    n.Author,
 		Title:     n.Title,
 		Content:   n.Content,
 		Summary:   n.Summary,
 		CreatedAt: t,
-		Source:    parsedURL,
+		Source:    parsedURL.String(),
 		Tags:      n.Tags,
 	}, nil
 }
 
 // AllNewsResponse represents the all news response.
 type AllNewsResponse struct {
-	News []*store.News `json:"news"`
+	News []*news.Record `json:"news"`
 }

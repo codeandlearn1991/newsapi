@@ -64,7 +64,7 @@ func Test_PostNews(t *testing.T) {
 			setup: func(tb testing.TB) *mockshandler.MockNewsStorer {
 				tb.Helper()
 				ms := mockshandler.NewMockNewsStorer(gomock.NewController(t))
-				ms.EXPECT().Create(gomock.Any()).Return(nil, errors.New("db error"))
+				ms.EXPECT().Create(gomock.Any(), gomock.Any()).Return(nil, errors.New("db error"))
 				return ms
 			},
 			expectedStatus: http.StatusInternalServerError,
@@ -86,7 +86,7 @@ func Test_PostNews(t *testing.T) {
 			setup: func(tb testing.TB) *mockshandler.MockNewsStorer {
 				tb.Helper()
 				ms := mockshandler.NewMockNewsStorer(gomock.NewController(t))
-				ms.EXPECT().Create(gomock.Any()).Return(nil, nil)
+				ms.EXPECT().Create(gomock.Any(), gomock.Any()).Return(nil, nil)
 				return ms
 			},
 			expectedStatus: http.StatusCreated,
@@ -119,7 +119,7 @@ func Test_GetAllNews(t *testing.T) {
 			setup: func(tb testing.TB) *mockshandler.MockNewsStorer {
 				tb.Helper()
 				ms := mockshandler.NewMockNewsStorer(gomock.NewController(t))
-				ms.EXPECT().FindAll().Return(nil, errors.New("db error"))
+				ms.EXPECT().FindAll(gomock.Any()).Return(nil, errors.New("db error"))
 				return ms
 			},
 			expectedStatus: http.StatusInternalServerError,
@@ -129,7 +129,7 @@ func Test_GetAllNews(t *testing.T) {
 			setup: func(tb testing.TB) *mockshandler.MockNewsStorer {
 				tb.Helper()
 				ms := mockshandler.NewMockNewsStorer(gomock.NewController(t))
-				ms.EXPECT().FindAll().Return(nil, nil)
+				ms.EXPECT().FindAll(gomock.Any()).Return(nil, nil)
 				return ms
 			},
 			expectedStatus: http.StatusOK,
@@ -172,7 +172,7 @@ func Test_GetNewsByID(t *testing.T) {
 			setup: func(tb testing.TB) *mockshandler.MockNewsStorer {
 				tb.Helper()
 				ms := mockshandler.NewMockNewsStorer(gomock.NewController(t))
-				ms.EXPECT().FindByID(gomock.Any()).Return(nil, errors.New("db error"))
+				ms.EXPECT().FindByID(gomock.Any(), gomock.Any()).Return(nil, errors.New("db error"))
 				return ms
 			},
 			newsID:         uuid.NewString(),
@@ -183,7 +183,7 @@ func Test_GetNewsByID(t *testing.T) {
 			setup: func(tb testing.TB) *mockshandler.MockNewsStorer {
 				tb.Helper()
 				ms := mockshandler.NewMockNewsStorer(gomock.NewController(t))
-				ms.EXPECT().FindByID(gomock.Any()).Return(nil, nil)
+				ms.EXPECT().FindByID(gomock.Any(), gomock.Any()).Return(nil, nil)
 				return ms
 			},
 			newsID:         uuid.NewString(),
@@ -256,7 +256,7 @@ func Test_UpdateNewsByID(t *testing.T) {
 			setup: func(tb testing.TB) *mockshandler.MockNewsStorer {
 				tb.Helper()
 				ms := mockshandler.NewMockNewsStorer(gomock.NewController(t))
-				ms.EXPECT().UpdateByID(gomock.Any()).Return(errors.New("db error"))
+				ms.EXPECT().UpdateByID(gomock.Any(), gomock.Any(), gomock.Any()).Return(errors.New("db error"))
 				return ms
 			},
 			expectedStatus: http.StatusInternalServerError,
@@ -277,7 +277,7 @@ func Test_UpdateNewsByID(t *testing.T) {
 			setup: func(tb testing.TB) *mockshandler.MockNewsStorer {
 				tb.Helper()
 				ms := mockshandler.NewMockNewsStorer(gomock.NewController(t))
-				ms.EXPECT().UpdateByID(gomock.Any()).Return(nil)
+				ms.EXPECT().UpdateByID(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
 				return ms
 			},
 			expectedStatus: http.StatusOK,
@@ -320,7 +320,7 @@ func Test_DeleteNewsByID(t *testing.T) {
 			setup: func(tb testing.TB) *mockshandler.MockNewsStorer {
 				tb.Helper()
 				ms := mockshandler.NewMockNewsStorer(gomock.NewController(t))
-				ms.EXPECT().DeleteByID(gomock.Any()).Return(errors.New("db error"))
+				ms.EXPECT().DeleteByID(gomock.Any(), gomock.Any()).Return(errors.New("db error"))
 				return ms
 			},
 			newsID:         uuid.NewString(),
@@ -331,7 +331,7 @@ func Test_DeleteNewsByID(t *testing.T) {
 			setup: func(tb testing.TB) *mockshandler.MockNewsStorer {
 				tb.Helper()
 				ms := mockshandler.NewMockNewsStorer(gomock.NewController(t))
-				ms.EXPECT().DeleteByID(gomock.Any()).Return(nil)
+				ms.EXPECT().DeleteByID(gomock.Any(), gomock.Any()).Return(nil)
 				return ms
 			},
 			newsID:         uuid.NewString(),

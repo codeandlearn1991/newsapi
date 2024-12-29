@@ -1,11 +1,12 @@
 package handler
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 
 	"github.com/codeandlearn1991/newsapi/internal/logger"
-	"github.com/codeandlearn1991/newsapi/internal/store"
+	"github.com/codeandlearn1991/newsapi/internal/news"
 	"github.com/google/uuid"
 )
 
@@ -14,21 +15,22 @@ import (
 // NewsStorer represents the news store opertions.
 type NewsStorer interface {
 	// Create news from post request body.
-	Create(*store.News) (*store.News, error)
+	Create(context.Context, *news.Record) (*news.Record, error)
 	// FindByID news by its ID.
-	FindByID(uuid.UUID) (*store.News, error)
+	FindByID(context.Context, uuid.UUID) (*news.Record, error)
 	// FindAll returns all news in the store.
-	FindAll() ([]*store.News, error)
+	FindAll(context.Context) ([]*news.Record, error)
 	// DeleteByID deletes a news item by its ID.
-	DeleteByID(uuid.UUID) error
+	DeleteByID(context.Context, uuid.UUID) error
 	// UpdateByID updates a news resource by its ID.
-	UpdateByID(*store.News) error
+	UpdateByID(context.Context, uuid.UUID, *news.Record) error
 }
 
 // PostNews handler.
 func PostNews(ns NewsStorer) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		log := logger.FromContext(r.Context())
+		ctx := r.Context()
+		log := logger.FromContext(ctx)
 		log.Info("request received")
 
 		var newsRequestBody NewsPostReqBody
@@ -48,7 +50,7 @@ func PostNews(ns NewsStorer) http.HandlerFunc {
 			return
 		}
 
-		if _, err := ns.Create(&n); err != nil {
+		if _, err := ns.Create(ctx, n); err != nil {
 			log.Error("error creating news", "error", err)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
@@ -60,16 +62,17 @@ func PostNews(ns NewsStorer) http.HandlerFunc {
 // GetAllNews handler.
 func GetAllNews(ns NewsStorer) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		log := logger.FromContext(r.Context())
+		ctx := r.Context()
+		log := logger.FromContext(ctx)
 		log.Info("request received")
-		news, err := ns.FindAll()
+		n, err := ns.FindAll(ctx)
 		if err != nil {
 			log.Error("failed to fetch all news", "error", err)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 
-		allNewsResponse := AllNewsResponse{News: news}
+		allNewsResponse := AllNewsResponse{News: n}
 		if err := json.NewEncoder(w).Encode(allNewsResponse); err != nil {
 			log.Error("failed to write response", "error", err)
 			w.WriteHeader(http.StatusInternalServerError)
@@ -81,7 +84,8 @@ func GetAllNews(ns NewsStorer) http.HandlerFunc {
 // GetNewsByID handler.
 func GetNewsByID(ns NewsStorer) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		log := logger.FromContext(r.Context())
+		ctx := r.Context()
+		log := logger.FromContext(ctx)
 		log.Info("request received")
 		newsID := r.PathValue("news_id")
 		newsUUID, err := uuid.Parse(newsID)
@@ -90,14 +94,14 @@ func GetNewsByID(ns NewsStorer) http.HandlerFunc {
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
-		news, err := ns.FindByID(newsUUID)
+		n, err := ns.FindByID(ctx, newsUUID)
 		if err != nil {
 			log.Error("news not found", "newsId", newsID)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 
-		if err := json.NewEncoder(w).Encode(&news); err != nil {
+		if err := json.NewEncoder(w).Encode(&n); err != nil {
 			log.Error("failed to encode", "newsId", newsID, "error", err)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
@@ -108,7 +112,8 @@ func GetNewsByID(ns NewsStorer) http.HandlerFunc {
 // UpdateNewsByID handler.
 func UpdateNewsByID(ns NewsStorer) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		log := logger.FromContext(r.Context())
+		ctx := r.Context()
+		log := logger.FromContext(ctx)
 		log.Info("request received")
 
 		var newsRequestBody NewsPostReqBody
@@ -128,7 +133,7 @@ func UpdateNewsByID(ns NewsStorer) http.HandlerFunc {
 			return
 		}
 
-		if err := ns.UpdateByID(&n); err != nil {
+		if err := ns.UpdateByID(ctx, n.ID, n); err != nil {
 			log.Error("error updating news", "error", err)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
@@ -139,7 +144,8 @@ func UpdateNewsByID(ns NewsStorer) http.HandlerFunc {
 // DeleteNewsByID handler.
 func DeleteNewsByID(ns NewsStorer) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		log := logger.FromContext(r.Context())
+		ctx := r.Context()
+		log := logger.FromContext(ctx)
 		newsID := r.PathValue("news_id")
 		newsUUID, err := uuid.Parse(newsID)
 		if err != nil {
@@ -148,7 +154,7 @@ func DeleteNewsByID(ns NewsStorer) http.HandlerFunc {
 			return
 		}
 
-		if err := ns.DeleteByID(newsUUID); err != nil {
+		if err := ns.DeleteByID(ctx, newsUUID); err != nil {
 			log.Error("news not found", "newsId", newsID, "error", err)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
