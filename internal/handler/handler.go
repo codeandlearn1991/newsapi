@@ -3,6 +3,7 @@ package handler
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"net/http"
 
 	"github.com/codeandlearn1991/newsapi/internal/logger"
@@ -52,6 +53,11 @@ func PostNews(ns NewsStorer) http.HandlerFunc {
 
 		if _, err := ns.Create(ctx, n); err != nil {
 			log.Error("error creating news", "error", err)
+			var dbErr *news.CustomError
+			if errors.As(err, &dbErr) {
+				w.WriteHeader(dbErr.HTTPStatusCode())
+				return
+			}
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
@@ -68,6 +74,11 @@ func GetAllNews(ns NewsStorer) http.HandlerFunc {
 		n, err := ns.FindAll(ctx)
 		if err != nil {
 			log.Error("failed to fetch all news", "error", err)
+			var dbErr *news.CustomError
+			if errors.As(err, &dbErr) {
+				w.WriteHeader(dbErr.HTTPStatusCode())
+				return
+			}
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
@@ -97,6 +108,11 @@ func GetNewsByID(ns NewsStorer) http.HandlerFunc {
 		n, err := ns.FindByID(ctx, newsUUID)
 		if err != nil {
 			log.Error("news not found", "newsId", newsID)
+			var dbErr *news.CustomError
+			if errors.As(err, &dbErr) {
+				w.WriteHeader(dbErr.HTTPStatusCode())
+				return
+			}
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
@@ -135,6 +151,11 @@ func UpdateNewsByID(ns NewsStorer) http.HandlerFunc {
 
 		if err := ns.UpdateByID(ctx, n.ID, n); err != nil {
 			log.Error("error updating news", "error", err)
+			var dbErr *news.CustomError
+			if errors.As(err, &dbErr) {
+				w.WriteHeader(dbErr.HTTPStatusCode())
+				return
+			}
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
@@ -156,6 +177,11 @@ func DeleteNewsByID(ns NewsStorer) http.HandlerFunc {
 
 		if err := ns.DeleteByID(ctx, newsUUID); err != nil {
 			log.Error("news not found", "newsId", newsID, "error", err)
+			var dbErr *news.CustomError
+			if errors.As(err, &dbErr) {
+				w.WriteHeader(dbErr.HTTPStatusCode())
+				return
+			}
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
