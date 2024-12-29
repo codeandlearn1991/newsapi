@@ -37,7 +37,7 @@ func (c *Config) conn() string {
 func NewDB(c *Config) (*bun.DB, error) {
 	config, err := pgx.ParseConfig(c.conn())
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("parse config: %w", err)
 	}
 	sqldb := stdlib.OpenDB(*config)
 	sqldb.SetMaxIdleConns(c.MaxIdleConn)

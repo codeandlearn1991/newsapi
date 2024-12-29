@@ -113,7 +113,7 @@ func Test_GetAllNews(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			// Arrange
 			w := httptest.NewRecorder()
-			r := httptest.NewRequest(http.MethodPost, "/", nil)
+			r := httptest.NewRequest(http.MethodPost, "/", http.NoBody)
 
 			// Act
 			handler.GetAllNews(tc.store)(w, r)
@@ -155,7 +155,7 @@ func Test_GetNewsByID(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			// Arrange
 			w := httptest.NewRecorder()
-			r := httptest.NewRequest(http.MethodPost, "/", nil)
+			r := httptest.NewRequest(http.MethodPost, "/", http.NoBody)
 			r.SetPathValue("news_id", tc.newsID)
 
 			// Act
@@ -274,7 +274,7 @@ func Test_DeleteNewsByID(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			// Arrange
 			w := httptest.NewRecorder()
-			r := httptest.NewRequest(http.MethodPost, "/", nil)
+			r := httptest.NewRequest(http.MethodPost, "/", http.NoBody)
 			r.SetPathValue("news_id", tc.newsID)
 
 			// Act
