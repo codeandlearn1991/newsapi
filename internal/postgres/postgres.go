@@ -10,6 +10,7 @@ import (
 	"github.com/uptrace/bun/extra/bundebug"
 )
 
+// Config holds the DB configs.
 type Config struct {
 	Host        string
 	DBName      string
@@ -34,6 +35,7 @@ func (c *Config) conn() string {
 	)
 }
 
+// NewDB creates a new instance of bun.DB.
 func NewDB(c *Config) (*bun.DB, error) {
 	config, err := pgx.ParseConfig(c.conn())
 	if err != nil {

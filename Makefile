@@ -9,6 +9,10 @@ fmt::
 run::
 	go run ./cmd/api-server/main.go
 
+# Run test
+test::
+	go test ./...
+
 # Run tidy
 tidy::
 	go mod tidy -v

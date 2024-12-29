@@ -7,19 +7,22 @@ import (
 	"github.com/google/uuid"
 )
 
+// Store represents the in-memory news store.
 type Store struct {
 	l sync.Mutex
-	n []News
+	n []*News
 }
 
+// New returns an instance of store.
 func New() *Store {
 	return &Store{
 		l: sync.Mutex{},
-		n: []News{},
+		n: []*News{},
 	}
 }
 
-func (s *Store) Create(news News) (News, error) {
+// Create a news.
+func (s *Store) Create(news *News) (*News, error) {
 	s.l.Lock()
 	defer s.l.Unlock()
 	news.ID = uuid.New()
@@ -27,13 +30,15 @@ func (s *Store) Create(news News) (News, error) {
 	return news, nil
 }
 
-func (s *Store) FindAll() ([]News, error) {
+// FindAll news.
+func (s *Store) FindAll() ([]*News, error) {
 	s.l.Lock()
 	defer s.l.Unlock()
 	return s.n, nil
 }
 
-func (s *Store) FindByID(id uuid.UUID) (News, error) {
+// FindByID find a single news with its ID.
+func (s *Store) FindByID(id uuid.UUID) (*News, error) {
 	s.l.Lock()
 	defer s.l.Unlock()
 	for _, n := range s.n {
@@ -41,9 +46,10 @@ func (s *Store) FindByID(id uuid.UUID) (News, error) {
 			return n, nil
 		}
 	}
-	return News{}, errors.New("news not found")
+	return nil, errors.New("news not found")
 }
 
+// DeleteByID delete a news by its ID.
 func (s *Store) DeleteByID(id uuid.UUID) error {
 	s.l.Lock()
 	defer s.l.Unlock()
@@ -64,7 +70,8 @@ func (s *Store) DeleteByID(id uuid.UUID) error {
 	return nil
 }
 
-func (s *Store) UpdateByID(news News) error {
+// UpdateByID update a news by its ID.
+func (s *Store) UpdateByID(news *News) error {
 	s.l.Lock()
 	defer s.l.Unlock()
 	for idx, n := range s.n {

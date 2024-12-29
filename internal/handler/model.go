@@ -10,6 +10,7 @@ import (
 	"github.com/google/uuid"
 )
 
+// NewsPostReqBody represents the post request body for the news.
 type NewsPostReqBody struct {
 	ID        uuid.UUID `json:"id"`
 	Author    string    `json:"author"`
@@ -21,7 +22,8 @@ type NewsPostReqBody struct {
 	Tags      []string  `json:"tags"`
 }
 
-func (n NewsPostReqBody) Validate() (news store.News, errs error) {
+// Validate the incoming request.
+func (n *NewsPostReqBody) Validate() (news store.News, errs error) {
 	if n.Author == "" {
 		errs = errors.Join(errs, fmt.Errorf("author is empty: %s", n.Author))
 	}
@@ -41,7 +43,7 @@ func (n NewsPostReqBody) Validate() (news store.News, errs error) {
 	if n.Source == "" {
 		errs = errors.Join(errs, fmt.Errorf("source is empty: %s", n.Source))
 	}
-	url, err := url.Parse(n.Source)
+	parsedURL, err := url.Parse(n.Source)
 	if err != nil {
 		errs = errors.Join(errs, err)
 	}
@@ -59,11 +61,12 @@ func (n NewsPostReqBody) Validate() (news store.News, errs error) {
 		Content:   n.Content,
 		Summary:   n.Summary,
 		CreatedAt: t,
-		Source:    url,
+		Source:    parsedURL,
 		Tags:      n.Tags,
 	}, nil
 }
 
+// AllNewsResponse represents the all news response.
 type AllNewsResponse struct {
-	News []store.News `json:"news"`
+	News []*store.News `json:"news"`
 }

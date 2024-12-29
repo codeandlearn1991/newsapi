@@ -13,22 +13,22 @@ import (
 func Test_CtxWithLogger(t *testing.T) {
 	testCases := []struct {
 		name   string
-		ctx    context.Context
 		logger *slog.Logger
+		key    logger.CtxKey
+		value  *slog.Logger
 		exists bool
 	}{
 		{
 			name: "returns context without logger",
-			ctx:  context.Background(),
 		},
 		{
 			name:   "return ctx as it is",
-			ctx:    context.WithValue(context.Background(), logger.CtxKey{}, slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{AddSource: true}))),
+			key:    logger.CtxKey{},
+			value:  slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{AddSource: true})),
 			exists: true,
 		},
 		{
 			name:   "inject logger",
-			ctx:    context.Background(),
 			logger: slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{AddSource: true})),
 			exists: true,
 		},
@@ -36,8 +36,16 @@ func Test_CtxWithLogger(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			ctx := logger.CtxWithLogger(tc.ctx, tc.logger)
+			// Arrange
+			ctx := context.Background()
+			if tc.value != nil {
+				ctx = context.WithValue(ctx, tc.key, tc.value)
+			}
 
+			// Act
+			ctx = logger.CtxWithLogger(ctx, tc.logger)
+
+			// Assert
 			_, ok := ctx.Value(logger.CtxKey{}).(*slog.Logger)
 			assert.Equal(t, tc.exists, ok)
 		})
@@ -47,26 +55,33 @@ func Test_CtxWithLogger(t *testing.T) {
 func Test_FromContext(t *testing.T) {
 	testCases := []struct {
 		name     string
-		ctx      context.Context
+		key      logger.CtxKey
+		value    *slog.Logger
 		expected bool
 	}{
 		{
-			name:     "logger exists",
-			ctx:      context.WithValue(context.Background(), logger.CtxKey{}, slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{AddSource: true}))),
-			expected: true,
+			name:  "logger exists",
+			key:   logger.CtxKey{},
+			value: slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{AddSource: true})),
 		},
 		{
-			name:     "new logger returned",
-			ctx:      context.Background(),
-			expected: true,
+			name: "new logger returned",
 		},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			logger := logger.FromContext(tc.ctx)
+			// Arrange
+			ctx := context.Background()
+			if tc.value != nil {
+				ctx = context.WithValue(ctx, tc.key, tc.value)
+			}
 
-			assert.Equal(t, tc.expected, logger != nil)
+			// Act
+			log := logger.FromContext(ctx)
+
+			// Assert
+			assert.True(t, log != nil)
 		})
 	}
 }

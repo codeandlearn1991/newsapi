@@ -7,6 +7,7 @@ import (
 	"github.com/uptrace/bun"
 )
 
+// Record used to represent news in the database.
 type Record struct {
 	bun.BaseModel `bun:"table:news"`
 	ID            uuid.UUID `bun:"id,pk,type:uuid,default:uuid_generate_v4()"`

@@ -7,6 +7,7 @@ import (
 	"github.com/google/uuid"
 )
 
+// News represents the news data stored in memory.
 type News struct {
 	ID        uuid.UUID `json:"id"`
 	Author    string    `json:"author"`

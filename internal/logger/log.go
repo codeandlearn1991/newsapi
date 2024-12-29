@@ -7,9 +7,11 @@ import (
 	"os"
 )
 
+// CtxKey for the logger.
 type CtxKey struct{}
 
-func CtxWithLogger(ctx context.Context, logger *slog.Logger) context.Context {
+// CtxWithLogger returns the context enriched with the logger.
+func CtxWithLogger(ctx context.Context, logger *slog.Logger) context.Context { //nolint:ireturn // needs to returns a enriched context.
 	if logger == nil {
 		return ctx
 	}
@@ -21,6 +23,7 @@ func CtxWithLogger(ctx context.Context, logger *slog.Logger) context.Context {
 	return context.WithValue(ctx, CtxKey{}, logger)
 }
 
+// FromContext fetch the logger from the context.
 func FromContext(ctx context.Context) *slog.Logger {
 	if logger, ok := ctx.Value(CtxKey{}).(*slog.Logger); ok {
 		return logger
@@ -28,6 +31,7 @@ func FromContext(ctx context.Context) *slog.Logger {
 	return slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{AddSource: true}))
 }
 
+// AddLoggerMid adds the logger to the request context.
 func AddLoggerMid(logger *slog.Logger, next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		loggerCtx := CtxWithLogger(r.Context(), logger)
@@ -36,7 +40,8 @@ func AddLoggerMid(logger *slog.Logger, next http.HandlerFunc) http.HandlerFunc {
 	}
 }
 
-func LoggerMid(next http.Handler) http.HandlerFunc {
+// Middleware request logging middleware.
+func Middleware(next http.Handler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		l := FromContext(r.Context())
 		l.Info("request", "path", r.URL.String())

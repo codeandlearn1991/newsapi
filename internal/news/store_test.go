@@ -41,13 +41,13 @@ func TestMain(m *testing.M) {
 func TestStore_Create(t *testing.T) {
 	testCases := []struct {
 		name               string
-		news               news.Record
+		news               *news.Record
 		expectedErr        string
 		expectedStatusCode int
 	}{
 		{
 			name: "missing author",
-			news: news.Record{
+			news: &news.Record{
 				Title:   "test-title",
 				Summary: "test-summary",
 				Content: "test-content",
@@ -59,7 +59,7 @@ func TestStore_Create(t *testing.T) {
 		},
 		{
 			name: "success",
-			news: news.Record{
+			news: &news.Record{
 				Author:  "test-author",
 				Title:   "test-title",
 				Summary: "test-summary",
@@ -95,14 +95,14 @@ func TestStore_FindByID(t *testing.T) {
 	testCases := []struct {
 		name               string
 		id                 uuid.UUID
-		expectedNews       news.Record
+		expectedNews       *news.Record
 		expectedStatusCode int
 		expectedErr        string
 	}{
 		{
 			name: "found",
 			id:   uuid.MustParse("17628bea-9d11-47f9-986e-16703a87e451"),
-			expectedNews: news.Record{
+			expectedNews: &news.Record{
 				Author:  "Batman",
 				Title:   "Breaking News",
 				Summary: "A brief summary of the news",
@@ -148,11 +148,11 @@ func TestStore_FindByID(t *testing.T) {
 func TestStore_FindAll(t *testing.T) {
 	testCases := []struct {
 		name         string
-		expectedNews []news.Record
+		expectedNews []*news.Record
 	}{
 		{
 			name: "found all",
-			expectedNews: []news.Record{
+			expectedNews: []*news.Record{
 				{
 					Author:  "Batman",
 					Title:   "Breaking News",
@@ -213,12 +213,12 @@ func TestStore_DeleteByID(t *testing.T) {
 func TestStore_UpdatedByID(t *testing.T) {
 	testCases := []struct {
 		name           string
-		news           news.Record
+		news           *news.Record
 		expectedStatus int
 	}{
 		{
 			name: "updated",
-			news: news.Record{
+			news: &news.Record{
 				ID:        uuid.MustParse("bde0c593-0df6-4eba-9326-3f00be67aade"),
 				Author:    "Wolverine",
 				Title:     "Breaking News",
@@ -232,7 +232,7 @@ func TestStore_UpdatedByID(t *testing.T) {
 		},
 		{
 			name: "not found",
-			news: news.Record{
+			news: &news.Record{
 				ID: uuid.MustParse("6a3483c7-e28e-442e-b603-b06ff60eeeb4"),
 			},
 			expectedStatus: http.StatusNotFound,
@@ -257,7 +257,7 @@ func TestStore_UpdatedByID(t *testing.T) {
 	}
 }
 
-func assertOnNews(tb testing.TB, expected, got news.Record) {
+func assertOnNews(tb testing.TB, expected, got *news.Record) {
 	tb.Helper()
 	assert.Equal(tb, expected.Author, got.Author)
 	assert.Equal(tb, expected.Title, got.Title)
