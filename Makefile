@@ -5,6 +5,10 @@ SHELL:=env PATH=$(GO_BIN):$(PATH) $(SHELL)
 fmt::
 	golangci-lint run --fix -v ./...
 
+# Run the generate command
+generate::
+	go generate ./...
+
 # Run the server
 run::
 	go run ./cmd/api-server/main.go

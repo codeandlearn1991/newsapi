@@ -9,6 +9,8 @@ import (
 	"github.com/google/uuid"
 )
 
+//go:generate mockgen -source=handler.go -destination=mocks/handler.go -package=mockshandler
+
 // NewsStorer represents the news store opertions.
 type NewsStorer interface {
 	// Create news from post request body.
