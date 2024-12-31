@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bytes"
 	"fmt"
 	"log"
 	"log/slog"
@@ -117,7 +116,7 @@ func newMigrationCmd(m *migrate.Migrator, l *slog.Logger) *cli.Command {
 					if err != nil {
 						return fmt.Errorf("migration status: %w", err)
 					}
-					var buf bytes.Buffer
+					var buf strings.Builder
 					buf.WriteString(fmt.Sprintf("migrations: %s - ", ms))
 					buf.WriteString(fmt.Sprintf("unapplied migrations: %s - ", ms.Unapplied()))
 					buf.WriteString(fmt.Sprintf("last migration group: %s", ms.LastGroup()))
