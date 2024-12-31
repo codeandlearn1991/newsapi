@@ -1,0 +1,3 @@
+DROP TABLE news;
+
+DROP EXTENSION IF EXISTS "uuid-ossp";
