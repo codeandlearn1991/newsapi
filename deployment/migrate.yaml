@@ -1,0 +1,44 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: news-api-migrate
+  namespace: news-service
+spec:
+  template:
+    metadata:
+      labels:
+        app: news-api-migrate
+    spec:
+      containers:
+        - name: migrate
+          image: news-migrate
+          command: ["/bin/sh", "-c"]
+          args:
+            - ./app migrate init && ./app migrate up
+          env:
+            - name: DATABASE_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: database-secret
+                  key: host
+            - name: DATABASE_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: database-secret
+                  key: dbname
+            - name: DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: database-secret
+                  key: password
+            - name: DATABASE_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: database-secret
+                  key: port
+            - name: DATABASE_USER
+              valueFrom:
+                secretKeyRef:
+                  name: database-secret
+                  key: user
+      restartPolicy: Never

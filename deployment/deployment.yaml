@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: news-api-server
+  namespace: news-service
+  labels:
+    app: news-api-server
+spec:
+  selector:
+    matchLabels:
+      app: news-api-server
+  template:
+    metadata:
+      labels:
+        app: news-api-server
+    spec:
+      containers:
+      - name: news-api-server
+        image: news-api-server
+        ports:
+        - containerPort: 8080
+        env:
+          - name: DATABASE_HOST
+            valueFrom:
+              secretKeyRef:
+                name: database-secret
+                key: host
+          - name: DATABASE_NAME
+            valueFrom:
+              secretKeyRef:
+                name: database-secret
+                key: dbname
+          - name: DATABASE_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: database-secret
+                key: password
+          - name: DATABASE_PORT
+            valueFrom:
+              secretKeyRef:
+                name: database-secret
+                key: port
+          - name: DATABASE_USER
+            valueFrom:
+              secretKeyRef:
+                name: database-secret
+                key: user

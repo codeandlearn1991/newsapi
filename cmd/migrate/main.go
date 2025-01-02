@@ -8,27 +8,36 @@ import (
 	"strings"
 
 	"github.com/codeandlearn1991/newsapi/internal/migration"
+	"github.com/codeandlearn1991/newsapi/internal/postgres"
+	"github.com/uptrace/bun/extra/bundebug"
 	"github.com/uptrace/bun/migrate"
 	"github.com/urfave/cli/v2"
 )
 
 func main() {
-	// db, err := postgres.NewDB(&postgres.Config{})
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
+	db, err := postgres.NewDB(&postgres.Config{
+		Host:     os.Getenv("DATABASE_HOST"),
+		DBName:   os.Getenv("DATABASE_NAME"),
+		Password: os.Getenv("DATABASE_PASSWORD"),
+		User:     os.Getenv("DATABASE_USER"),
+		Port:     os.Getenv("DATABASE_PORT"),
+		SSLMode:  "disable",
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
 
-	// db.AddQueryHook(bundebug.NewQueryHook(
-	// 	bundebug.WithEnabled(false),
-	// 	bundebug.FromEnv(),
-	// ))
+	db.AddQueryHook(bundebug.NewQueryHook(
+		bundebug.WithEnabled(true),
+		bundebug.FromEnv(),
+	))
 	l := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{AddSource: true}))
 
 	app := &cli.App{
 		Name: "migrate",
 		Commands: []*cli.Command{
 			newMigrationCmd(
-				migrate.NewMigrator(nil, migration.New(), migrate.WithMarkAppliedOnSuccess(true)),
+				migrate.NewMigrator(db, migration.New(), migrate.WithMarkAppliedOnSuccess(true)),
 				l,
 			),
 		},
