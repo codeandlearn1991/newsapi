@@ -1,4 +1,4 @@
-ARG GO_VERSION=1.23.4
+ARG GO_VERSION=1.24.0
 
 # Build stage
 FROM golang:${GO_VERSION}-bullseye AS builder
