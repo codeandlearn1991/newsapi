@@ -98,13 +98,13 @@ linters:
     - bodyclose
     - containedctx
     - contextcheck
+    - copyloopvar
     - dogsled
     - dupl
     - durationcheck
     - errname
     - errorlint
     - exhaustive
-    - exportloopref
     - forbidigo
     - forcetypeassert
     - goconst
