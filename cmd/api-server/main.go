@@ -1,19 +1,24 @@
 package main
 
 import (
+	"context"
+	"fmt"
 	"log/slog"
 	"net/http"
 	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/codeandlearn1991/newsapi/internal/logger"
 	"github.com/codeandlearn1991/newsapi/internal/news"
 	"github.com/codeandlearn1991/newsapi/internal/postgres"
 	"github.com/codeandlearn1991/newsapi/internal/router"
+	"golang.org/x/sync/errgroup"
 )
 
 func main() {
-	log := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{AddSource: true}))
+	log := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{}))
 
 	db, err := postgres.NewDB(&postgres.Config{
 		Host:     os.Getenv("DATABASE_HOST"),
@@ -40,7 +45,37 @@ func main() {
 		Handler:           wrappedRouter,
 	}
 
-	if err := server.ListenAndServe(); err != nil {
-		log.Error("failed to start server", "error", err)
+	errGrp, errGrpCtx := errgroup.WithContext(context.Background())
+	errGrp.Go(func() error {
+		if err := server.ListenAndServe(); err != nil {
+			log.Error("failed to start server", "error", err)
+			return fmt.Errorf("error starting server: %w", err)
+		}
+		return nil
+	})
+
+	errGrp.Go(func() error {
+		sigch := make(chan os.Signal, 1)
+		signal.Notify(sigch, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
+		select {
+		case sig := <-sigch:
+			log.Info("signal received", "signal", sig)
+		case <-errGrpCtx.Done():
+		}
+
+		ctxWithTimeout, cancelFn := context.WithTimeout(errGrpCtx, 5*time.Second)
+		defer cancelFn()
+
+		log.Info("initiating graceful shutdown")
+
+		if err := server.Shutdown(ctxWithTimeout); err != nil {
+			return fmt.Errorf("error graceful shutdown: %w", err)
+		}
+
+		return nil
+	})
+
+	if err := errGrp.Wait(); err != nil {
+		log.Error("error running", "err", err)
 	}
 }
